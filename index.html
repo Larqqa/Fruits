@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="style.css"></link>
+</head>
+<body>
+  <div id="body">
+  </div>
+
+  <script>
+    const fruit = [
+      '🍋','🍉','🍓','🍒','🍐','🥑','🍇'
+    ];
+    
+    const onScroll = () => {
+      if (window.innerWidth % 7 === 0) return;
+      drawBoxes(); 
+    }
+
+    const drawBoxes = () => {
+      const width = window.innerWidth / 7;
+      const height = width;
+
+      const body = document.getElementById('body');
+      body.innerHTML = '';
+      const boxSize = width;
+
+      winWidth = (window.innerWidth / width) + 1;
+      winHeight = (window.innerHeight / height);
+
+      for (let y = 0; y < winHeight; y++) {
+
+        const row = document.createElement('div');
+
+        if (y === 0) {
+          row.classList.add('zero');
+          row.style.cssText = `margin-top: -${boxSize / 3}px`;
+        } else if (y === winHeight - 1) {
+          row.classList.add('last');
+        }
+
+        if (y % 2 !== 0) {
+          row.classList.add('two');
+          row.style.cssText = `margin-left: -${boxSize / 2}px`;
+        }
+        row.id = 'row';
+
+        for (let x = 0; x < winWidth; x++) {
+          const box = document.createElement('div');
+          box.style.cssText = `min-height: ${boxSize}px;min-width: ${boxSize}px;max-widht: ${boxSize}px;`
+          if (y % 2 !== 0) box.classList.add('two');
+          box.id = 'box';
+
+          const top = document.createElement('a');
+          top.href = "#";
+          top.onclick = (e) => {
+            e.preventDefault();
+            if(e.target.parentElement.classList.contains('active')) {
+              box.classList.remove('active');
+            } else if (e.target.parentElement.classList.contains('center')) {
+              box.classList.add('active');
+            }
+          }
+          top.id = 'top';
+
+          const left = document.createElement('span');
+          left.id = 'left';
+
+          const right = document.createElement('span');
+          right.id = 'right';
+
+          const fruitContainer = document.createElement('p');
+          fruitContainer.style.cssText = `font-size: ${width * .3}px;`;
+
+          if (y !== 0 && x !== 0 && y % 2 !== 0 && x < winWidth - 1) {
+            box.classList.add('center')
+            fruitContainer.innerHTML = fruit[Math.floor(Math.random() * fruit.length)];
+            top.appendChild(fruitContainer);
+          } else if (y % 2 === 0 && x < winWidth - 1) {
+            box.classList.add('center')
+            fruitContainer.innerHTML = fruit[Math.floor(Math.random() * fruit.length)];
+            top.appendChild(fruitContainer);
+          }
+
+          box.appendChild(top);
+          box.appendChild(left);
+          box.appendChild(right);
+          
+          row.appendChild(box);
+        }
+
+        body.appendChild(row);
+      }
+    }
+
+    window.addEventListener('resize', onScroll);
+
+    document
+    drawBoxes();
+  </script>
+
+</body>
+</html>
