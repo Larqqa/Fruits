@@ -131,13 +131,15 @@ const drawFruit = () => {
       fruitP.innerHTML = fruit.fruit;
     }
   }
+
   // Check if any fruits are in lines of threes
   checkThrees();
 }
 
 // handle click on fruit
 const handleActive = (id) => {
-  // Check adjacent fruit
+
+  // Check adjacent fruit of clicked fruit
   if (checkedFruit.length === 0) {  
     check(id);
   } else {
@@ -168,6 +170,64 @@ const handleActive = (id) => {
   }
 }
 
+// Check adjacent fruit
+const check = (id) => {
+  lastFruit = id;
+
+  const checkFruits = [
+    [fruits[id], id],
+    [fruits[id - 1], id - 1],
+    [fruits[id + 1], id + 1],
+    [fruits[id - gridWidth + 1], id - gridWidth + 1],
+    [fruits[id - gridWidth + 2], id - gridWidth + 2],
+    [fruits[id + gridWidth - 1], id + gridWidth - 1],
+    [fruits[id + gridWidth - 2], id + gridWidth - 2]
+  ];
+
+  let box = document.getElementById(checkFruits[0][1]).parentElement;
+
+  console.log(checkFruits);
+
+  if (box.classList.contains('odd') && box.classList.contains('start')) {
+    checkFruits.splice(1, 1);
+  } else if (box.classList.contains('odd') && box.classList.contains('end')) {
+    checkFruits.splice(2, 1);
+  } else if (box.classList.contains('even') && box.classList.contains('start')) {
+    checkFruits.splice(4, 1);
+    checkFruits.splice(2, 1);
+    checkFruits.splice(1, 1);
+  } else if (box.classList.contains('even') && box.classList.contains('end')) {
+    checkFruits.splice(5, 1);
+    checkFruits.splice(2, 1);
+    checkFruits.splice(3, 1);
+  }
+
+  console.log(checkFruits);
+
+  const fruitsActiveChecker = (fruit, box) => {
+    if(!box) return;
+    const activeFruit = fruit[0];
+    
+    if(activeFruit.active) {
+      box.classList.remove('active');
+    } else {
+      box.classList.add('active');
+
+      checkedFruit.push(fruit[1]);
+    }
+    fruit[0].activeCheck();
+  }
+
+  for (let i = 0; i < checkFruits.length; i++) {
+    let box = null;
+    if(document.getElementById(checkFruits[i][1])) {
+      box = document.getElementById(checkFruits[i][1]).parentElement;
+    }
+
+    fruitsActiveChecker(checkFruits[i], box);
+  }
+}
+
 // Handle fruit change
 const changeFruit = (id) => {
   const fruit = fruits[id];
@@ -186,7 +246,7 @@ const checkThrees = (id) => {
   const boxes = document.getElementsByClassName('center')
   
   // Get all adjacent fruits of the changed fruit
-  if (id) {
+  const getAdj = (id) => {
     const fruit = fruits[id];
     const leftFruit = fruits[id - 1];
     const rightFruit = fruits[id + 1];
@@ -232,164 +292,15 @@ const checkThrees = (id) => {
         drawFruit();
       }
     }
+  }
 
-    return;
+  if(id) {
+    return getAdj(id);
   }
 
   // For each fruit in center boxes
   for (let i = 0; i < boxes.length; i++) {
-    // Get all adjacent fruits
-    const fruit = fruits[i];
-    const leftFruit = fruits[i - 1];
-    const rightFruit = fruits[i + 1];
-    const topLeftFruit = fruits[i - gridWidth + 1];
-    const topRightFruit = fruits[i - gridWidth + 2];
-    const botRightFruit = fruits[i + gridWidth - 1];
-    const botLeftFruit = fruits[i + gridWidth - 2];
-
-    if (i !== 0 && i !== gridWidth - 1) {
-      if (
-        fruit.fruit == leftFruit.fruit &&
-        fruit.fruit == rightFruit.fruit
-      ) {
-  
-        // If horizontal
-        leftFruit.reset();
-        fruit.reset();
-        rightFruit.reset();
-        drawFruit();
-
-      } else if (
-        i - gridWidth + 2 > 0 && i + gridWidth - 1 > 0 &&
-        fruit.fruit == topLeftFruit.fruit &&
-        fruit.fruit == botRightFruit.fruit
-      ) {
-
-        // If diagonal from left
-        topLeftFruit.reset();
-        fruit.reset();
-        botRightFruit.reset();
-        drawFruit();
-
-      } else if (
-        i - gridWidth + 1 > 0 && i + gridWidth - 2 > 0 &&
-        fruit.fruit == topRightFruit.fruit &&
-        fruit.fruit == botLeftFruit.fruit
-      ) {
-
-        // If diagonal from right
-        topRightFruit.reset();
-        fruit.reset();
-        botLeftFruit.reset();
-        drawFruit();
-      }
-    }
-  }
-}
-
-// Check adjacent fruit
-const check = (id) => {
-  const boxes = document.getElementsByClassName('center')
-
-  // For each box in game board, check the fruits adjacent block
-  for (let i = 0; i < boxes.length; i++) {
-    const box = boxes[i];
-    const fruit = fruits[i];
-
-    // Change classes and active state
-    const fruitsActiveChecker = () => {
-      if(fruit.active) {
-        box.classList.remove('active');
-      } else {
-        box.classList.add('active');
-        if (id !== i) {
-          checkedFruit.push(i);
-        } else {
-          checkedFruit.push(i);
-          lastFruit = id;
-        }
-      }
-      fruits[i].activeCheck();
-    }
-
-    // If fruit is the one clicked
-    if (id === i){
-      fruitsActiveChecker();
-    }
-
-    // Check all others than the end and start boxes
-    if(
-      !boxes[id].classList.contains('start') &&
-      !boxes[id].classList.contains('end')
-    ) {
-      if (
-        id === i + 1 ||
-        id === i - 1 ||
-        id === i + gridWidth - 1 ||
-        id === i + gridWidth - 2 ||
-        id === i - gridWidth + 1 ||
-        id === i - gridWidth + 2
-      ) {
-        fruitsActiveChecker();
-      }
-    } else {
-      // Check on the left side
-      if (
-        !boxes[id].classList.contains('odd') &&
-        !boxes[id].classList.contains('start')
-      ) {
-        if (
-          id === i + 1 ||
-          id === i + gridWidth - 1 ||
-          id === i - gridWidth + 2
-        ) {
-          fruitsActiveChecker();
-        }
-      } else {
-        if (!boxes[id].classList.contains('start')) {
-  
-          // Even rows need to check top left and bottom left boxes too          
-          if (
-            id === i + 1 ||
-            id === i + gridWidth - 1 ||
-            id === i - gridWidth + 2 ||
-            id === i + gridWidth - 2 ||
-            id === i - gridWidth + 1
-          ) {
-            fruitsActiveChecker();
-          }
-        }
-      
-      }
-      // Check on the right side
-      if (
-        !boxes[id].classList.contains('odd') &&
-        !boxes[id].classList.contains('end')
-      ) {
-        if (
-          id === i - 1 ||
-          id === i + gridWidth - 2 ||
-          id === i - gridWidth + 1
-        ) {
-          fruitsActiveChecker();
-        }
-
-      } else {
-
-        // Even rows need to check top left and bottom left boxes too
-        if (!boxes[id].classList.contains('end')) {
-          if (
-            id === i - 1 ||
-            id === i + gridWidth - 2 ||
-            id === i - gridWidth + 1 ||
-            id === i + gridWidth - 1 ||
-            id === i - gridWidth + 2
-          ) {
-            fruitsActiveChecker();
-          }
-        }
-      }
-    }
+    getAdj(i);
   }
 }
 
