@@ -330,6 +330,41 @@ const checkThrees = (identifier) => {
       return;
     }
 
+    // Same fix as above, but for mobile 
+    if (window.innerWidth < 500 && id === 5) {
+      const fruit = fruits[id];
+      const topLeftFruit = fruits[id - gridWidth + 1];
+      const topRightFruit = fruits[id - gridWidth + 2];
+      const botRightFruit = fruits[id + gridWidth - 1];
+      const botLeftFruit = fruits[id + gridWidth - 2];
+      if (
+        fruit.fruit == topLeftFruit.fruit &&
+        fruit.fruit == botRightFruit.fruit
+      ) {
+
+        // If diagonal from left
+        topLeftFruit.reset();
+        fruit.reset();
+        botRightFruit.reset();
+        if(id) score++;
+        drawFruit();
+
+      } else if (
+        fruit.fruit == topRightFruit.fruit &&
+        fruit.fruit == botLeftFruit.fruit
+      ) {
+
+        // If diagonal from right
+        topRightFruit.reset();
+        fruit.reset();
+        botLeftFruit.reset();
+        if(id) score++;        
+        drawFruit();
+
+      }
+      return;
+    }
+
     const fruit = fruits[id];
     const leftFruit = fruits[id - 1];
     const rightFruit = fruits[id + 1];
