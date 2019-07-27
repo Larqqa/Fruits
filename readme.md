@@ -1,3 +1,5 @@
-# Fruit layout
+# Fruits
 
-Pure HTML, CSS & JavaScript box-grid  with fruit and transitions 😀
+match three fruits game made with pure HTML, CSS & JavaScript
+
+The grid could also be used as a showcase layout for products or something else cool 😀

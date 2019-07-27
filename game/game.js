@@ -1,9 +1,17 @@
 const body = document.getElementById('body');
 let boxWidth = window.innerWidth / 12;
-if(window.innerWidth < 1000) boxWidth = window.innerWidth / 5;
-const boxHeight = boxWidth;
-const gridWidth = (window.innerWidth / boxWidth) + 1;
-const gridHeight = (window.innerHeight / boxHeight);
+let boxHeight = boxWidth;
+let gridWidth = (window.innerWidth / boxWidth) + 1;
+let gridHeight = (window.innerHeight / boxHeight);
+
+if(window.innerWidth < 500) {
+  boxWidth = window.innerWidth / 5;
+  boxHeight = boxWidth;
+  gridWidth = (window.innerWidth / boxWidth) + 1;
+  gridHeight = (window.innerHeight / boxHeight);
+}
+let score = 0;
+
 const fruits = [];
 let lastFruit = 0;
 const checkedFruit = [];
@@ -17,6 +25,9 @@ const init = () => {
       i++;
     }
   }
+}
+const drawScore = () => {
+  document.getElementById('score').innerHTML = `Score: ${score}`;
 }
 
 // Init game board
@@ -33,7 +44,7 @@ const drawBoxes = () => {
 
     if (y === 0) {
       row.classList.add('zero');
-      row.style.cssText = `margin-top: -${boxHeight / 3}px`;
+      row.style.cssText = `margin-top: -${boxHeight / 2}px`;
     } else if (y % 2 !== 0) {
       row.classList.add('odd');
       row.style.cssText = `margin-left: -${boxWidth / 2}px`;
@@ -108,6 +119,7 @@ const drawBoxes = () => {
 }
 
 const drawFruit = () => {
+  drawScore();
   const boxes = document.getElementsByClassName('center')
 
   // For each box in the center draw fruit
@@ -186,23 +198,19 @@ const check = (id) => {
 
   let box = document.getElementById(checkFruits[0][1]).parentElement;
 
-  console.log(checkFruits);
-
   if (box.classList.contains('odd') && box.classList.contains('start')) {
     checkFruits.splice(1, 1);
   } else if (box.classList.contains('odd') && box.classList.contains('end')) {
     checkFruits.splice(2, 1);
   } else if (box.classList.contains('even') && box.classList.contains('start')) {
-    checkFruits.splice(4, 1);
-    checkFruits.splice(2, 1);
     checkFruits.splice(1, 1);
+    checkFruits.splice(2, 1);
+    checkFruits.splice(4, 1);
   } else if (box.classList.contains('even') && box.classList.contains('end')) {
     checkFruits.splice(5, 1);
     checkFruits.splice(2, 1);
     checkFruits.splice(3, 1);
   }
-
-  console.log(checkFruits);
 
   const fruitsActiveChecker = (fruit, box) => {
     if(!box) return;
@@ -232,13 +240,23 @@ const check = (id) => {
 const changeFruit = (id) => {
   const fruit = fruits[id];
 
+  const fruitNow = document.getElementById(id).getElementsByClassName('fruit')[0];
+  const fruitLast = document.getElementById(lastFruit).getElementsByClassName('fruit')[0];
+
+  if (id !== lastFruit) {
+    fruitNow.classList.add('hide');
+    fruitLast.classList.add('hide');
+    setTimeout(()=>{
+      drawFruit();
+      checkThrees();
+      fruitNow.classList.remove('hide');
+      fruitLast.classList.remove('hide');
+    }, 250);
+  }
+
   // Switch fruits
   fruits[id] = fruits[lastFruit];
   fruits[lastFruit] = fruit;
-
-  // Re-draw fruits
-  drawFruit();
-  checkThrees(id);
 }
 
 // Check if any fruits are in lines of threes
@@ -265,6 +283,7 @@ const checkThrees = (id) => {
         leftFruit.reset();
         fruit.reset();
         rightFruit.reset();
+        if(id) score++;
         drawFruit();
 
       } else if (
@@ -277,6 +296,7 @@ const checkThrees = (id) => {
         topLeftFruit.reset();
         fruit.reset();
         botRightFruit.reset();
+        if(id) score++;
         drawFruit();
 
       } else if (
@@ -289,6 +309,7 @@ const checkThrees = (id) => {
         topRightFruit.reset();
         fruit.reset();
         botLeftFruit.reset();
+        if(id) score++;        
         drawFruit();
       }
     }

@@ -1,0 +1,36 @@
+@media (max-width: 1000px) {  
+  .top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #82ccdd; 
+    z-index: 1;
+    transform: rotate(45deg);
+    left: 14.5%;
+    top: -6.5%;
+    height: 71%;
+    width: 71%;
+  }
+  
+  .left {
+    background: #3c6382;
+    transform: skewY(45deg);
+    top: 54%;
+    left: 0;
+  }
+  
+  .right {
+    background: #60a3bc;
+    transform: skewY(-45deg);
+    top: 54%;
+    right: 0;
+  }
+  
+  .center.active .top {
+    background: #dff9ff;
+  }
+
+  .center.active .top .fruit {
+    transform: translateY(-20%);
+  }
+}
