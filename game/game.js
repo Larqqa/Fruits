@@ -240,16 +240,18 @@ const check = (id) => {
 const changeFruit = (id) => {
   const fruit = fruits[id];
 
-  const fruitNow = document.getElementById(id).getElementsByClassName('fruit')[0];
-  const fruitLast = document.getElementById(lastFruit).getElementsByClassName('fruit')[0];
-
   if (id !== lastFruit) {
-    fruitNow.classList.add('hide');
+    const fruitNew = document.getElementById(id).getElementsByClassName('fruit')[0];
+    const fruitLast = document.getElementById(lastFruit).getElementsByClassName('fruit')[0];
+
+    // animate opacity change on fruit change
+    fruitNew.classList.add('hide');
     fruitLast.classList.add('hide');
+
     setTimeout(()=>{
       drawFruit();
-      checkThrees();
-      fruitNow.classList.remove('hide');
+      checkThrees(id);
+      fruitNew.classList.remove('hide');
       fruitLast.classList.remove('hide');
     }, 250);
   }
@@ -260,11 +262,74 @@ const changeFruit = (id) => {
 }
 
 // Check if any fruits are in lines of threes
-const checkThrees = (id) => {
+const checkThrees = (identifier) => {
   const boxes = document.getElementsByClassName('center')
   
   // Get all adjacent fruits of the changed fruit
-  const getAdj = (id) => {
+  const getAdj = (adjIdentifier) => {
+    let id = adjIdentifier;
+
+    const box = document.getElementById(id).parentElement;
+
+    // If checking the start of even row, check with id + 1
+    // Else this checks from odd rows end
+    // There was some bugs with implementing this in the main block so this fixes the bugs
+    if (id && box && box.classList.contains('start') && box.classList.contains('even')) {
+      const newId = id + 1;
+      const fruit = fruits[newId];
+      const leftFruit = fruits[newId - 1];
+      const rightFruit = fruits[newId + 1];
+      if (id !== 0 && id !== gridWidth - 1) {
+        if (
+          fruit.fruit == leftFruit.fruit &&
+          fruit.fruit == rightFruit.fruit
+        ) {
+          // If horizontal
+          leftFruit.reset();
+          fruit.reset();
+          rightFruit.reset();
+          if(id) score++;
+          drawFruit();
+        }
+      }
+      return;
+    }
+
+    // Index 12 is somehow out of the cheks, but this fixes that
+    if (id === 12) {
+      const fruit = fruits[id];
+      const topLeftFruit = fruits[id - gridWidth + 1];
+      const topRightFruit = fruits[id - gridWidth + 2];
+      const botRightFruit = fruits[id + gridWidth - 1];
+      const botLeftFruit = fruits[id + gridWidth - 2];
+      if (
+        fruit.fruit == topLeftFruit.fruit &&
+        fruit.fruit == botRightFruit.fruit
+      ) {
+
+        // If diagonal from left
+        topLeftFruit.reset();
+        fruit.reset();
+        botRightFruit.reset();
+        if(id) score++;
+        drawFruit();
+
+      } else if (
+        fruit.fruit == topRightFruit.fruit &&
+        fruit.fruit == botLeftFruit.fruit
+      ) {
+
+        // If diagonal from right
+        topRightFruit.reset();
+        fruit.reset();
+        botLeftFruit.reset();
+        if(id) score++;        
+        drawFruit();
+
+      }
+      return;
+    }
+
     const fruit = fruits[id];
     const leftFruit = fruits[id - 1];
     const rightFruit = fruits[id + 1];
@@ -272,13 +337,17 @@ const checkThrees = (id) => {
     const topRightFruit = fruits[id - gridWidth + 2];
     const botRightFruit = fruits[id + gridWidth - 1];
     const botLeftFruit = fruits[id + gridWidth - 2];
-    
+
     if (id !== 0 && id !== gridWidth - 1) {
       if (
         fruit.fruit == leftFruit.fruit &&
         fruit.fruit == rightFruit.fruit
       ) {
-  
+
+        // Skip checking start and end blocks of odd rows
+        if (id && box && box.classList.contains('start') && box.classList.contains('odd')) return;
+        if (id && box && box.classList.contains('end') && box.classList.contains('odd')) return;
+
         // If horizontal
         leftFruit.reset();
         fruit.reset();
@@ -292,6 +361,10 @@ const checkThrees = (id) => {
         fruit.fruit == botRightFruit.fruit
       ) {
 
+        // If end of even row, dont check diagonals
+        // Else this checks it from the odd rows start
+        if (id && box && box.classList.contains('end') && box.classList.contains('even')) return;
+
         // If diagonal from left
         topLeftFruit.reset();
         fruit.reset();
@@ -300,10 +373,15 @@ const checkThrees = (id) => {
         drawFruit();
 
       } else if (
+
         id - gridWidth + 1 > 0 && id + gridWidth - 2 > 0 &&
         fruit.fruit == topRightFruit.fruit &&
         fruit.fruit == botLeftFruit.fruit
       ) {
+
+        // If end of even row, dont check diagonals
+        // Else this checks it from the odd rows start
+        if (id && box && box.classList.contains('end') && box.classList.contains('even')) return;
 
         // If diagonal from right
         topRightFruit.reset();
@@ -311,12 +389,13 @@ const checkThrees = (id) => {
         botLeftFruit.reset();
         if(id) score++;        
         drawFruit();
+
       }
     }
   }
 
-  if(id) {
-    return getAdj(id);
+  if(identifier) {
+    return getAdj(identifier);
   }
 
   // For each fruit in center boxes
@@ -325,6 +404,7 @@ const checkThrees = (id) => {
   }
 }
 
+// Launch
 init();
 drawBoxes();
 drawFruit();

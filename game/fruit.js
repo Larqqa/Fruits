@@ -8,7 +8,7 @@ class Fruit {
     //this.fruit = val
     this.x = x,
     this.y = y,
-    this.active = false  
+    this.active = false
   }
 
   activeCheck = () => {
